@@ -133,7 +133,7 @@ const RequestList: React.FC<Props> = ({ user }) => {
                 {req.assignedTo ? masters.find(m => m.id === req.assignedTo)?.name : '-'}
               </td>
               <td>
-                {user.role === 'dispatcher' && req.status === 'new' && (
+                {user.role === 'dispatcher' && (req.status === 'new' || req.status === 'assigned') && (
                   <>
                     <select
                       onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
