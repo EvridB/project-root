@@ -1,4 +1,5 @@
 import pytest
+import asyncio
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models import User, Request, UserRole, RequestStatus
@@ -17,8 +18,14 @@ async def test_create_request_flow(client: AsyncClient, db_session: AsyncSession
     assert resp.status_code == 200
     cookies = resp.cookies
 
-    # Создаём заявку (в текущем API нет создания, но можно напрямую в БД)
-    req = Request(clientName="Test", phone="123", address="addr", problemText="prob", status=RequestStatus.new)
+    # Создаём заявку (напрямую в БД, так как API создания может отсутствовать)
+    req = Request(
+        clientName="Test",
+        phone="123",
+        address="addr",
+        problemText="prob",
+        status=RequestStatus.new
+    )
     db_session.add(req)
     await db_session.commit()
     req_id = req.id
@@ -54,8 +61,14 @@ async def test_concurrent_take(db_session: AsyncSession):
     await db_session.commit()
 
     # Создаём заявку со статусом assigned, назначенную этому мастеру
-    req = Request(clientName="Concurrent", phone="123", address="addr", problemText="prob",
-                  status=RequestStatus.assigned, assignedTo=master.id)
+    req = Request(
+        clientName="Concurrent",
+        phone="123",
+        address="addr",
+        problemText="prob",
+        status=RequestStatus.assigned,
+        assignedTo=master.id
+    )
     db_session.add(req)
     await db_session.commit()
     req_id = req.id
